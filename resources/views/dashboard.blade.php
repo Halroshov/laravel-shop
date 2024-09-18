@@ -31,6 +31,7 @@
         <div class="bg-white p-4 rounded shadow">
             <h2 class="text-xl font-semibold mb-4">快速操作</h2>
             <a href="{{ route('products.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 inline-block mb-2">添加新产品</a>
+            <a href="{{ route('products.search') }}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 inline-block">查询产品</a>
             <a href="{{ route('products.index') }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 inline-block">管理产品</a>
         </div>
     </div>

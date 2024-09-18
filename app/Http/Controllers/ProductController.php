@@ -15,29 +15,24 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::with(['category', 'brand', 'stock', 'images']);
-
-        // 筛选
-        if ($request->has('category')) {
-            $query->where('category_id', $request->category);
-        }
-        if ($request->has('brand')) {
-            $query->where('brand_id', $request->brand);
-        }
-        if ($request->has('min_price')) {
-            $query->where('price', '>=', $request->min_price);
-        }
-        if ($request->has('max_price')) {
-            $query->where('price', '<=', $request->max_price);
-        }
-        if ($request->has('name')) {
-            $query->where('name', 'like', '%' . $request->name . '%');
-        }
-
+    
+        $query->when($request->filled('category'), function ($query) use ($request) {
+            return $query->where('category_id', $request->input('category'));
+        })->when($request->filled('brand'), function ($query) use ($request) {
+            return $query->where('brand_id', $request->input('brand'));
+        })->when($request->filled('min_price'), function ($query) use ($request) {
+            return $query->where('price', '>=', $request->input('min_price'));
+        })->when($request->filled('max_price'), function ($query) use ($request) {
+            return $query->where('price', '<=', $request->input('max_price'));
+        })->when($request->filled('name'), function ($query) use ($request) {
+            return $query->where('name', 'like', '%' . $request->input('name') . '%');
+        });
+    
         $products = $query->paginate(10);
-
+    
         $categories = Category::all();
         $brands = Brand::all();
-
+    
         return view('products.index', compact('products', 'categories', 'brands'));
     }
 
@@ -127,13 +122,20 @@ class ProductController extends Controller
         $product->delete();
         return redirect()->route('products.index')->with('完成', '产品删除完成。');
     }
-    public function dashboard()
-{
-    $totalProducts = Product::count();
-    $latestProducts = Product::latest()->take(5)->get();
-    $categories = Category::withCount('products')->get();
-    $brands = Brand::withCount('products')->get();
 
-    return view('dashboard', compact('totalProducts', 'latestProducts', 'categories', 'brands'));
-}
+    public function dashboard()
+    {
+        $totalProducts = Product::count();
+        $latestProducts = Product::latest()->take(5)->get();
+        $categories = Category::withCount('products')->get();
+        $brands = Brand::withCount('products')->get();
+
+        return view('dashboard', compact('totalProducts', 'latestProducts', 'categories', 'brands'));
+    }
+
+    public function search(Request $request)
+    {
+        // 这里可以调用 index 方法或复制其逻辑
+        return $this->index($request);
+    }
 }
